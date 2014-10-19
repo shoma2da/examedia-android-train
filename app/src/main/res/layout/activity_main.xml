@@ -8,9 +8,47 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <TextView
-        android:text="@string/hello_world"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <GridLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/departure"
+            android:id="@+id/textView2"
+            android:layout_row="0"
+            android:layout_column="0" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText2"
+            android:layout_row="0"
+            android:layout_column="1"
+            android:text="明治神宮前" /><!-- FIXME テキストは今だけ決め打ち-->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/arrival"
+            android:id="@+id/textView4"
+            android:layout_row="1"
+            android:layout_column="0" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText3"
+            android:layout_row="1"
+            android:layout_column="1"
+            android:elegantTextHeight="false"
+            android:text="表参道" /><!-- FIXME テキストは今だけ決め打ち-->
+
+    </GridLayout>
 </RelativeLayout>
