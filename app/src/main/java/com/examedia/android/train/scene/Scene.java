@@ -13,7 +13,15 @@ public class Scene {
 
     /** 景色を読み込む */
     public static void load(String depature, String arrival, int time, int imageNumber, LoaderManager loaderManager, OnLoadSceneCallback callback) {
-        loaderManager.initLoader(0, null, callback);
+        //Loader側に渡すパラメータを準備
+        Bundle bundle = new Bundle();
+        bundle.putString(SceneInfoLoader.PARAM_DEPATURE, depature);
+        bundle.putString(SceneInfoLoader.PARAM_ARRIVAL, arrival);
+        bundle.putInt(SceneInfoLoader.PARAM_TIME, time);
+        bundle.putInt(SceneInfoLoader.PARAM_IMAGE_NUMBER, imageNumber);
+
+        //非同期読み込みの開始
+        loaderManager.initLoader(0, bundle, callback);
     }
 
     Scene(/*画像オブジェクト、流す間隔*/) {} //パッケージ内からのみインスタンス化できる→テストできるようにprivateにはしない
@@ -36,7 +44,7 @@ public class Scene {
 
         @Override
         public Loader<Scene> onCreateLoader(int id, Bundle args) {
-            SceneInfoLoader sceneInfoLoader = new SceneInfoLoader(mContext);
+            SceneInfoLoader sceneInfoLoader = new SceneInfoLoader(mContext, args);
             sceneInfoLoader.forceLoad();
             return sceneInfoLoader;
         }
