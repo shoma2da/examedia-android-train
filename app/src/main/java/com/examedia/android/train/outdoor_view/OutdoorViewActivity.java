@@ -36,7 +36,7 @@ public class OutdoorViewActivity extends Activity {
         Scene.load(depature, arrival, time, imageNumber, new Scene.OnLoadSceneCallback() {
             @Override
             public void onLoad(Scene scene) {
-                Log.d("debug", "*** " + scene.toString() + " ***");
+                scene.play(OutdoorViewActivity.this);
             }
 
             @Override

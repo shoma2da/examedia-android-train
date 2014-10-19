@@ -2,6 +2,7 @@ package com.examedia.android.train.scene;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -19,7 +20,7 @@ import java.util.Locale;
 public class Scene {
 
     /** 景色を読み込む */
-    public static void load(String depature, String arrival, int time, int imageNumber, final OnLoadSceneCallback callback) {
+    public static void load(String depature, String arrival, final int time, int imageNumber, final OnLoadSceneCallback callback) {
         //HTTPリクエスト
         String urlBase = "http://examedia-sample-train-picture.herokuapp.com/api/v1/pictures?from=%s&to=%s&division=%d";
         String url = String.format(Locale.JAPAN, urlBase, depature, arrival, imageNumber);
@@ -28,7 +29,7 @@ public class Scene {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 try {
-                    new SceneParser().parse(new String(responseBody), new SceneParser.OnParseCallback() {
+                    new SceneParser().parse(new String(responseBody), time, new SceneParser.OnParseCallback() {
                         @Override
                         public void onParse(Scene scene) {
                             callback.onLoad(scene);
@@ -55,14 +56,21 @@ public class Scene {
     }
 
     private List<Bitmap> mBitmaps;
+    private int mTimeInSeconds;
 
-    Scene(List<Bitmap> bitmaps) { //パッケージ内からのみインスタンス化できる→テストできるようにprivateにはしない
-
+    Scene(List<Bitmap> bitmaps, int timeInSeconds) { //パッケージ内からのみインスタンス化できる→テストできるようにprivateにはしない
+        mBitmaps = bitmaps;
+        mTimeInSeconds = timeInSeconds;
     }
 
     /** 景色を再生する */
     public void play(Activity activity) {
-
+        Log.d("debug", "--------------------------");
+        Log.d("debug", "time : " + mTimeInSeconds);
+        for (Bitmap bitmap : mBitmaps) {
+            Log.d("debug", "bitmap : " + bitmap);
+        }
+        Log.d("debug", "--------------------------");
     }
 
     /** 読み込み時用のコールバック */

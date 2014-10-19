@@ -18,7 +18,7 @@ import java.util.ArrayList;
  */
 public class SceneParser {
 
-    public void parse(String jsonText, final OnParseCallback callback) throws JSONException, IOException {
+    public void parse(String jsonText, final int timeInSeconds, final OnParseCallback callback) throws JSONException, IOException {
         JSONObject json = new JSONObject(jsonText);
 
         final JSONArray urlList = json.getJSONArray("urlList");
@@ -37,7 +37,7 @@ public class SceneParser {
                         InputStream inputStream = new URL(urlString).openStream();
                         bitmaps.add(BitmapFactory.decodeStream(inputStream));
                     }
-                    return new Scene(bitmaps);
+                    return new Scene(bitmaps, timeInSeconds);
                 } catch (Exception e) {
                     return null;
                 }
