@@ -4,12 +4,19 @@ import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Loader;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.ResponseHandlerInterface;
 
 import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by shoma2da on 2014/10/19.
@@ -21,9 +28,27 @@ public class Scene {
         //HTTPリクエスト
         String url = "http://examedia-sample-train-picture.herokuapp.com/api/v1/pictures?from=%E6%98%8E%E6%B2%BB%E7%A5%9E%E5%AE%AE%E5%89%8D&to=%E8%A1%A8%E5%8F%82%E9%81%93";
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
+
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                callback.onLoad(new Scene());
+                try {
+                    new SceneParser().parse(new String(responseBody), new SceneParser.OnParseCallback() {
+                        @Override
+                        public void onParse(Scene scene) {
+                            callback.onLoad(scene);
+                        }
+                        @Override
+                        public void onError() {
+                            onFailure(0, null, null, null);
+                        }
+                    });
+                } catch (JSONException e) {
+                    onFailure(0, null, null, e);
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    onFailure(0, null, null, e);
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -33,7 +58,11 @@ public class Scene {
         });
     }
 
-    Scene(/*画像オブジェクト、流す間隔*/) {} //パッケージ内からのみインスタンス化できる→テストできるようにprivateにはしない
+    private List<Bitmap> mBitmaps;
+
+    Scene(List<Bitmap> bitmaps) { //パッケージ内からのみインスタンス化できる→テストできるようにprivateにはしない
+
+    }
 
     /** 景色を再生する */
     public void play(Activity activity) {
