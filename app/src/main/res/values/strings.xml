@@ -7,5 +7,6 @@
 
     <string name="departure">出発</string>
     <string name="arrival">到着</string>
+    <string name="start">START</string>
 
 </resources>
