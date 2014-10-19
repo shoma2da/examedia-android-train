@@ -1,9 +1,11 @@
 package com.examedia.android.train.outdoor_view;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.examedia.android.train.R;
 import com.examedia.android.train.scene.Scene;
@@ -33,15 +35,20 @@ public class OutdoorViewActivity extends Activity {
             depature, arrival, time, imageNumber)
         );
 
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("読み込み中...");
+        progressDialog.show();
         Scene.load(depature, arrival, time, imageNumber, new Scene.OnLoadSceneCallback() {
             @Override
             public void onLoad(Scene scene) {
+                progressDialog.dismiss();
                 scene.play(OutdoorViewActivity.this);
             }
 
             @Override
             public void onFailure() {
-                Log.d("debug", "failed to load");
+                progressDialog.dismiss();
+                Toast.makeText(OutdoorViewActivity.this, "エラーです", Toast.LENGTH_SHORT).show();
             }
         });
     }
