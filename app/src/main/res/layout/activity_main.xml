@@ -28,7 +28,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/editText2"
+            android:id="@+id/text_depature"
             android:layout_row="0"
             android:layout_column="1"
             android:text="明治神宮前" /><!-- FIXME テキストは今だけ決め打ち-->
@@ -45,7 +45,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/editText3"
+            android:id="@+id/text_arrival"
             android:layout_row="1"
             android:layout_column="1"
             android:elegantTextHeight="false"
@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/start"
-            android:id="@+id/button"
+            android:id="@+id/button_start"
             android:layout_row="2"
             android:layout_column="0"
             android:layout_columnSpan="2" />
@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             android:inputType="numberSigned"
             android:ems="10"
-            android:id="@+id/editText"
+            android:id="@+id/text_time"
             android:layout_row="4"
             android:layout_column="1"
             android:text="90" />
@@ -104,7 +104,7 @@
             android:layout_height="wrap_content"
             android:inputType="numberSigned"
             android:ems="10"
-            android:id="@+id/editText4"
+            android:id="@+id/text_image_number"
             android:layout_row="5"
             android:layout_column="1"
             android:text="45" />
