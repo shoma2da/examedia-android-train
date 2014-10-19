@@ -2,7 +2,6 @@ package com.examedia.android.train.outdoor_view;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -34,10 +33,15 @@ public class OutdoorViewActivity extends Activity {
             depature, arrival, time, imageNumber)
         );
 
-        Scene.load(depature, arrival, time, imageNumber, getLoaderManager(), new Scene.OnLoadSceneCallback(this) {
+        Scene.load(depature, arrival, time, imageNumber, new Scene.OnLoadSceneCallback() {
             @Override
             public void onLoad(Scene scene) {
                 Log.d("debug", "*** " + scene.toString() + " ***");
+            }
+
+            @Override
+            public void onFailure() {
+                Log.d("debug", "failed to load");
             }
         });
     }

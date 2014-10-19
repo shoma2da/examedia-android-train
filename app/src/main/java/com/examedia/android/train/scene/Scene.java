@@ -6,22 +6,31 @@ import android.content.Context;
 import android.content.Loader;
 import android.os.Bundle;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import org.apache.http.Header;
+
 /**
  * Created by shoma2da on 2014/10/19.
  */
 public class Scene {
 
     /** 景色を読み込む */
-    public static void load(String depature, String arrival, int time, int imageNumber, LoaderManager loaderManager, OnLoadSceneCallback callback) {
-        //Loader側に渡すパラメータを準備
-        Bundle bundle = new Bundle();
-        bundle.putString(SceneInfoLoader.PARAM_DEPATURE, depature);
-        bundle.putString(SceneInfoLoader.PARAM_ARRIVAL, arrival);
-        bundle.putInt(SceneInfoLoader.PARAM_TIME, time);
-        bundle.putInt(SceneInfoLoader.PARAM_IMAGE_NUMBER, imageNumber);
+    public static void load(String depature, String arrival, int time, int imageNumber, final OnLoadSceneCallback callback) {
+        //HTTPリクエスト
+        String url = "http://examedia-sample-train-picture.herokuapp.com/api/v1/pictures?from=%E6%98%8E%E6%B2%BB%E7%A5%9E%E5%AE%AE%E5%89%8D&to=%E8%A1%A8%E5%8F%82%E9%81%93";
+        new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                callback.onLoad(new Scene());
+            }
 
-        //非同期読み込みの開始
-        loaderManager.initLoader(0, bundle, callback);
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                callback.onFailure();
+            }
+        });
     }
 
     Scene(/*画像オブジェクト、流す間隔*/) {} //パッケージ内からのみインスタンス化できる→テストできるようにprivateにはしない
@@ -32,29 +41,9 @@ public class Scene {
     }
 
     /** 読み込み時用のコールバック */
-    public static abstract class OnLoadSceneCallback implements LoaderManager.LoaderCallbacks<Scene> {
-
-        private Context mContext;
-
-        public OnLoadSceneCallback(Context context) {
-            mContext = context;
-        }
-
-        public abstract void onLoad(Scene scene);
-
-        @Override
-        public Loader<Scene> onCreateLoader(int id, Bundle args) {
-            SceneInfoLoader sceneInfoLoader = new SceneInfoLoader(mContext, args);
-            sceneInfoLoader.forceLoad();
-            return sceneInfoLoader;
-        }
-
-        @Override public void onLoaderReset(Loader<Scene> loader) { /*nothing*/ }
-
-        @Override
-        public void onLoadFinished(Loader<Scene> loader, Scene scene) {
-            onLoad(scene);
-        }
+    public interface  OnLoadSceneCallback {
+        public void onLoad(Scene scene);
+        public void onFailure();
     }
 
 }
