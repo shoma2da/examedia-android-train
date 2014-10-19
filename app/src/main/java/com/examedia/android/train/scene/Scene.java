@@ -1,18 +1,12 @@
 package com.examedia.android.train.scene;
 
 import android.app.Activity;
-import android.app.LoaderManager;
-import android.content.Context;
-import android.content.Loader;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.ResponseHandlerInterface;
 
 import org.apache.http.Header;
-import org.apache.http.HttpResponse;
 import org.json.JSONException;
 
 import java.io.IOException;
