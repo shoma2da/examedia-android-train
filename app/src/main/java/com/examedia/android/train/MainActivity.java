@@ -1,4 +1,4 @@
-package train.android.examedia.com.train;
+package com.examedia.android.train;
 
 import android.app.Activity;
 import android.os.Bundle;
