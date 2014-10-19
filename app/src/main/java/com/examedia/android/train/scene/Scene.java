@@ -17,6 +17,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by shoma2da on 2014/10/19.
@@ -26,7 +27,8 @@ public class Scene {
     /** 景色を読み込む */
     public static void load(String depature, String arrival, int time, int imageNumber, final OnLoadSceneCallback callback) {
         //HTTPリクエスト
-        String url = "http://examedia-sample-train-picture.herokuapp.com/api/v1/pictures?from=%E6%98%8E%E6%B2%BB%E7%A5%9E%E5%AE%AE%E5%89%8D&to=%E8%A1%A8%E5%8F%82%E9%81%93";
+        String urlBase = "http://examedia-sample-train-picture.herokuapp.com/api/v1/pictures?from=%s&to=%s&division=%d";
+        String url = String.format(Locale.JAPAN, urlBase, depature, arrival, imageNumber);
         new AsyncHttpClient().get(url, new AsyncHttpResponseHandler() {
 
             @Override
