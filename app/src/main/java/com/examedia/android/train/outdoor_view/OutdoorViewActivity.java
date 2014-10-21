@@ -18,7 +18,10 @@ import com.examedia.android.train.scene.ImagesUrlLoader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by shoma2da on 2014/10/19.
@@ -68,28 +71,43 @@ public class OutdoorViewActivity extends Activity {
      * 画像を読み込んで表示する
      */
     private void play(final List<Uri> uriList) {
+        final Iterator<Uri> iterator = uriList.iterator();
         final ImageView imageView = (ImageView)findViewById(R.id.imageView);
 
-        new AsyncTask<Void, Void, Bitmap>() {
+        final Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
             @Override
-            protected Bitmap doInBackground(Void... params) {
-                try {
-                    return BitmapFactory.decodeStream(new URL(uriList.get(0).toString()).openStream());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                    return null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
+            public void run() {
+                new AsyncTask<Void, Void, Bitmap>() {
+                    @Override
+                    protected Bitmap doInBackground(Void... params) {
+                        try {
+                            if (iterator.hasNext() == false) {
+                                return null;
+                            }
+                            return BitmapFactory.decodeStream(new URL(iterator.next().toString()).openStream());
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                            return null;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    }
 
-            @Override
-            protected void onPostExecute(Bitmap bitmap) {
-                Log.d("train", "show image view " + bitmap);
-                super.onPostExecute(bitmap);
-                imageView.setImageBitmap(bitmap);
+                    @Override
+                    protected void onPostExecute(Bitmap bitmap) {
+                        if (bitmap == null) {
+                            Toast.makeText(OutdoorViewActivity.this, "画像を流すのが終了です", Toast.LENGTH_LONG).show();
+                            timer.cancel();
+                            return;
+                        }
+                        Log.d("train", "show image view " + bitmap);
+                        super.onPostExecute(bitmap);
+                        imageView.setImageBitmap(bitmap);
+                    }
+                }.execute();
             }
-        }.execute();
+        }, 0, 1000);
     }
 }
