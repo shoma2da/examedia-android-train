@@ -2,13 +2,16 @@ package com.examedia.android.train.outdoor_view;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.examedia.android.train.R;
-import com.examedia.android.train.scene.Scene;
+import com.examedia.android.train.scene.ImagesUrlLoader;
+
+import java.util.List;
 
 /**
  * Created by shoma2da on 2014/10/19.
@@ -38,17 +41,19 @@ public class OutdoorViewActivity extends Activity {
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("読み込み中...");
         progressDialog.show();
-        Scene.load(depature, arrival, time, imageNumber, new Scene.OnLoadSceneCallback() {
+        new ImagesUrlLoader().load(depature, arrival, time, imageNumber, new ImagesUrlLoader.OnLoadCallback() {
             @Override
-            public void onLoad(Scene scene) {
+            public void onLoad(List<Uri> uriList) {
                 progressDialog.dismiss();
-                scene.play(OutdoorViewActivity.this);
+                for (Uri uri : uriList) {
+                    Log.i("train", "uri is " + uri.toString());
+                }
             }
 
             @Override
             public void onFailure() {
                 progressDialog.dismiss();
-                Toast.makeText(OutdoorViewActivity.this, "エラーです", Toast.LENGTH_SHORT).show();
+                Toast.makeText(OutdoorViewActivity.this, "エラーが発生しました", Toast.LENGTH_LONG).show();
             }
         });
     }
