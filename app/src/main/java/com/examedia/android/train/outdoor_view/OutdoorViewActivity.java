@@ -103,7 +103,7 @@ public class OutdoorViewActivity extends Activity {
 
             @Override
             public void run() {
-                Log.d("train", "start timer task : " + count++);
+                Log.d("train", "start timer task : " + ++count);
 
                 //画像を切替える
                 handler.post(new Runnable() {
@@ -135,10 +135,12 @@ public class OutdoorViewActivity extends Activity {
                     protected void onPostExecute(Bitmap bitmap) {
                         super.onPostExecute(bitmap);
                         if (bitmap == null) {
+                            Toast.makeText(OutdoorViewActivity.this, "画像の読み込み終了です", Toast.LENGTH_LONG).show();
                             timer.cancel();
                             return;
                         }
                         nextBitmap = bitmap;
+                        Log.d("train", "done load image : " + count);
                     }
                 }.execute();
             }
