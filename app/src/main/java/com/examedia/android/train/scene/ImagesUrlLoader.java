@@ -18,7 +18,7 @@ import java.util.Locale;
  */
 public class ImagesUrlLoader {
 
-    public static final String URL_BASE = "http://examedia-sample-train-picture.herokuapp.com/api/v1/pictures?from=%s&to=%s&division=%d";
+    public static final String URL_BASE = "http://api.examedia.co.jp/metro/pictures/?from=%s&to=%s&division=%d";
 
     public void load(String depature, String arrival, final int time, int imageNumber, final OnLoadCallback callback) {
         //HTTPリクエスト
