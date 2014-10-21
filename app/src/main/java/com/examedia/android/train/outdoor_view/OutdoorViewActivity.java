@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -55,8 +56,29 @@ public class OutdoorViewActivity extends Activity {
         new ImagesUrlLoader().load(depature, arrival, time, imageNumber, new ImagesUrlLoader.OnLoadCallback() {
             @Override
             public void onLoad(List<Uri> uriList) {
-                progressDialog.dismiss();
-                play(uriList);
+                final Iterator<Uri> uriIterator = uriList.iterator();
+
+                //最初の１枚を先に取得しておいてから画像の再生に入る
+                new AsyncTask<Void, Void, Bitmap>() {
+                    @Override
+                    protected Bitmap doInBackground(Void... params) {
+                        try {
+                            return BitmapFactory.decodeStream(new URL(uriIterator.next().toString()).openStream());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Bitmap bitmap) {
+                        super.onPostExecute(bitmap);
+                        progressDialog.dismiss();
+                        if (bitmap != null) {
+                            play(uriIterator, bitmap);
+                        }
+                    }
+                }.execute();
             }
 
             @Override
@@ -70,14 +92,28 @@ public class OutdoorViewActivity extends Activity {
     /**
      * 画像を読み込んで表示する
      */
-    private void play(final List<Uri> uriList) {
-        final Iterator<Uri> iterator = uriList.iterator();
+    private void play(final Iterator<Uri> iterator, final Bitmap firstBitmap) {
+        final Handler handler = new Handler();
         final ImageView imageView = (ImageView)findViewById(R.id.imageView);
 
         final Timer timer = new Timer();
         timer.schedule(new TimerTask() {
+            private Bitmap nextBitmap = firstBitmap;
+            private int count = 0;
+
             @Override
             public void run() {
+                Log.d("train", "start timer task : " + count++);
+
+                //画像を切替える
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageView.setImageBitmap(nextBitmap);
+                    }
+                });
+
+                //次々回の画像を取得しておく
                 new AsyncTask<Void, Void, Bitmap>() {
                     @Override
                     protected Bitmap doInBackground(Void... params) {
@@ -97,14 +133,12 @@ public class OutdoorViewActivity extends Activity {
 
                     @Override
                     protected void onPostExecute(Bitmap bitmap) {
+                        super.onPostExecute(bitmap);
                         if (bitmap == null) {
-                            Toast.makeText(OutdoorViewActivity.this, "画像を流すのが終了です", Toast.LENGTH_LONG).show();
                             timer.cancel();
                             return;
                         }
-                        Log.d("train", "show image view " + bitmap);
-                        super.onPostExecute(bitmap);
-                        imageView.setImageBitmap(bitmap);
+                        nextBitmap = bitmap;
                     }
                 }.execute();
             }
