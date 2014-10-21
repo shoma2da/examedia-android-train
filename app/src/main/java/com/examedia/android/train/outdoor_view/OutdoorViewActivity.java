@@ -41,8 +41,8 @@ public class OutdoorViewActivity extends Activity {
 
         String depature = getIntent().getStringExtra(PARAM_DEPATURE);
         String arrival = getIntent().getStringExtra(PARAM_ARRIVAL);
-        int time = getIntent().getIntExtra(PARAM_TIME, 60);
-        int imageNumber = getIntent().getIntExtra(PARAM_IMAGE_NUMBER, 60);
+        final int time = getIntent().getIntExtra(PARAM_TIME, 60);
+        final int imageNumber = getIntent().getIntExtra(PARAM_IMAGE_NUMBER, 60);
 
         ((TextView)findViewById(R.id.text_description)).setText(
             String.format("%sから%sまでの景色を\n%d秒の長さ、%d枚の画像で\nお楽しみください...",
@@ -75,7 +75,7 @@ public class OutdoorViewActivity extends Activity {
                         super.onPostExecute(bitmap);
                         progressDialog.dismiss();
                         if (bitmap != null) {
-                            play(uriIterator, bitmap);
+                            play(uriIterator, bitmap, (time / imageNumber * 1000));
                         }
                     }
                 }.execute();
@@ -92,7 +92,7 @@ public class OutdoorViewActivity extends Activity {
     /**
      * 画像を読み込んで表示する
      */
-    private void play(final Iterator<Uri> iterator, final Bitmap firstBitmap) {
+    private void play(final Iterator<Uri> iterator, final Bitmap firstBitmap, int interval) {
         final Handler handler = new Handler();
         final ImageView imageView = (ImageView)findViewById(R.id.imageView);
 
@@ -142,6 +142,6 @@ public class OutdoorViewActivity extends Activity {
                     }
                 }.execute();
             }
-        }, 0, 1000);
+        }, 0, interval);
     }
 }
