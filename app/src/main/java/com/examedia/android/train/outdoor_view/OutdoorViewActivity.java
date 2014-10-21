@@ -1,11 +1,28 @@
 package com.examedia.android.train.outdoor_view;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.os.Handler;
+import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.examedia.android.train.R;
+import com.examedia.android.train.scene.ImagesUrlLoader;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by shoma2da on 2014/10/19.
@@ -24,12 +41,109 @@ public class OutdoorViewActivity extends Activity {
 
         String depature = getIntent().getStringExtra(PARAM_DEPATURE);
         String arrival = getIntent().getStringExtra(PARAM_ARRIVAL);
-        int time = getIntent().getIntExtra(PARAM_TIME, 60);
-        int imageNumber = getIntent().getIntExtra(PARAM_IMAGE_NUMBER, 60);
+        final int time = getIntent().getIntExtra(PARAM_TIME, 60);
+        final int imageNumber = getIntent().getIntExtra(PARAM_IMAGE_NUMBER, 60);
 
         ((TextView)findViewById(R.id.text_description)).setText(
             String.format("%sから%sまでの景色を\n%d秒の長さ、%d枚の画像で\nお楽しみください...",
             depature, arrival, time, imageNumber)
         );
+
+        //どの画像を取得したらいいかを問い合わせる
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("読み込み中...");
+        progressDialog.show();
+        new ImagesUrlLoader().load(depature, arrival, time, imageNumber, new ImagesUrlLoader.OnLoadCallback() {
+            @Override
+            public void onLoad(List<Uri> uriList) {
+                final Iterator<Uri> uriIterator = uriList.iterator();
+
+                //最初の１枚を先に取得しておいてから画像の再生に入る
+                new AsyncTask<Void, Void, Bitmap>() {
+                    @Override
+                    protected Bitmap doInBackground(Void... params) {
+                        try {
+                            return BitmapFactory.decodeStream(new URL(uriIterator.next().toString()).openStream());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Bitmap bitmap) {
+                        super.onPostExecute(bitmap);
+                        progressDialog.dismiss();
+                        if (bitmap != null) {
+                            play(uriIterator, bitmap, (time / imageNumber * 1000));
+                        }
+                    }
+                }.execute();
+            }
+
+            @Override
+            public void onFailure() {
+                progressDialog.dismiss();
+                Toast.makeText(OutdoorViewActivity.this, "エラーが発生しました", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    /**
+     * 画像を読み込んで表示する
+     */
+    private void play(final Iterator<Uri> iterator, final Bitmap firstBitmap, int interval) {
+        final Handler handler = new Handler();
+        final ImageView imageView = (ImageView)findViewById(R.id.imageView);
+
+        final Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            private Bitmap nextBitmap = firstBitmap;
+            private int count = 0;
+
+            @Override
+            public void run() {
+                Log.d("train", "start timer task : " + ++count);
+
+                //画像を切替える
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageView.setImageBitmap(nextBitmap);
+                    }
+                });
+
+                //次々回の画像を取得しておく
+                new AsyncTask<Void, Void, Bitmap>() {
+                    @Override
+                    protected Bitmap doInBackground(Void... params) {
+                        try {
+                            if (iterator.hasNext() == false) {
+                                return null;
+                            }
+                            return BitmapFactory.decodeStream(new URL(iterator.next().toString()).openStream());
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                            return null;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    }
+
+                    @Override
+                    protected void onPostExecute(Bitmap bitmap) {
+                        super.onPostExecute(bitmap);
+                        if (bitmap == null) {
+                            Toast.makeText(OutdoorViewActivity.this, "画像の読み込み終了です", Toast.LENGTH_LONG).show();
+                            timer.cancel();
+                            return;
+                        }
+                        nextBitmap = bitmap;
+                        Log.d("train", "done load image : " + count);
+                    }
+                }.execute();
+            }
+        }, 0, interval);
     }
 }
